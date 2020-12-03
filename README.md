@@ -5,6 +5,17 @@ project:  Facial Anonymization in Video
 
 due:      December 14, 2020
 
+## List of Materials used for reference
+Residual NN for Images: https://arxiv.org/abs/1512.03385
+
+Documentation for how OpenCV NN was trained: https://github.com/opencv/opencv/blob/master/samples/dnn/face_detector/how_to_train_face_detector.txt
+
+SqueezeNet: https://arxiv.org/pdf/1602.07360.pdf   https://github.com/forresti/SqueezeNet  TF Implement: https://github.com/vonclites/squeezenet
+
+EdgeNet is a small sized SqueezeNet-like architecture with FPGA implementation. Sort of useless other than proof of concept. Used on drones for edge computing. https://ieeexplore-ieee-org.proxy.lib.umich.edu/document/8617876
+
+ZynqNet seems like a different variant of EdgeNet. https://arxiv.org/pdf/2005.06892.pdf
+
 
 
 ## From the submitted project proposal:
