@@ -16,6 +16,8 @@ EdgeNet is a small sized SqueezeNet-like architecture with FPGA implementation. 
 
 ZynqNet seems like a different variant of EdgeNet. https://arxiv.org/pdf/2005.06892.pdf
 
+Dataset Used: WIDER Face: A Face Detection Benchmark (Yang, Shuo and Luo, Ping and Loy, Chen Change and Tang, Xiaoou, IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2016
+
 
 
 ## From the submitted project proposal:
