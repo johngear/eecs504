@@ -2,6 +2,7 @@ import cv2
 from matplotlib import pyplot as plt
 import numpy as np
 
+
 def get_data(group, path):
     '''
     Creates a list of tuples, each with an image name and its bounding box statistics.
@@ -127,7 +128,7 @@ def get_iou(bb1, bb2):
     return iou
 
 
-def plot_results(result):
+def plot_results(result, title):
     acc = []
     for i in range(0, len(result)):
         acc.extend(result[i][1])
@@ -144,7 +145,7 @@ def plot_results(result):
         plt.scatter(range(idx, idx + len(ar)), ar)
         idx = idx + len(ar)
 
-    ax.set_title('Average of IoU: {}'.format(avg_acc))
+    ax.set_title(title + ', Average of IoU: {}'.format(avg_acc))
     ax.set_ylabel('Intersection over Unions Average')
     ax.axes.xaxis.set_visible(False)
     plt.show()
@@ -156,7 +157,114 @@ def plot_results(result):
     plt.grid(axis='y', alpha=0.75)
     plt.xlabel('Incorrect')
     plt.ylabel('Frequency')
-    plt.title('Number of Misdetections (NumCorrect-NumDetected)')
+    plt.title(title + ', Number of Misdetections (NumCorrect-NumDetected)')
     plt.show()
 
 
+def tester2(data, fbb):
+    '''
+    Tests the accuracy of the classifier vs. the ground truth.
+    Input:
+        data: tuple of (filename, bbs(list itself)), which is the output of get_data()
+
+    Output:
+        total: tuple of (filename, accuracy per face, count of faces)
+    '''
+
+    total = []
+
+    # For each image
+    for i in range(0, len(data)):
+
+        boxes = data[i][1]
+        num_faces = len(boxes)
+
+        count = 0
+        result = []
+        detections = fbb[i]
+
+        # loop over the detections
+        for j in range(0, detections.shape[2]):
+
+            # extract the confidence (i.e., probability) associated with the detection
+            confidence = detections[0, 0, j, 2]
+
+            # filter out weak detections by ensuring the confidence is greater than the minimum confidence
+            if confidence > 0.3:
+                count += 1  # keep track of found faces
+                (startX, startY, endX, endY) = detections[0, 0, j, 3:7]
+                mink = min_dist(startX, startY, boxes)
+
+                known = (boxes[mink][0], boxes[mink][1], boxes[mink][0] + boxes[mink][2], boxes[mink][1] + boxes[mink][3])
+                found = (startX, startY, endX, endY)
+
+                result.append(get_iou(known, found))
+
+        # for each image, get: name, avg, actual number of faces, count
+        out = (data[i][0], result, num_faces, count)
+        total.append(out)
+
+    return total
+
+
+def tester(data, prototxtPath, weightsPath):
+    '''
+    Tests the accuracy of the classifier vs. the ground truth.
+    Input:
+        data: tuple of (filename, bbs(list itself)), which is the output of get_data()
+        prototxtPath: path to prototext file (used for DNN architecture)
+        weightsPath: path to caffe file (used for DNN architecture)
+    Output:
+        total: tuple of (filename, average accuracy per face, count of faces)
+    '''
+
+    # Defining DNN (baseline classifier)
+    net = cv2.dnn.readNet(prototxtPath, weightsPath)
+
+    total = []
+
+    # For each image
+    for i in range(0, len(data)):
+
+        # load the input image from disk, and grab the image spatial dimensions
+        image = cv2.imread(data[i][0], cv2.IMREAD_COLOR)
+        (h, w) = image.shape[:2]
+
+        # construct a blob from the image
+        blob = cv2.dnn.blobFromImage(image, 1.0, (300, 300), (104.0, 177.0, 123.0))
+
+        # pass the blob through the network and obtain the face detections
+        net.setInput(blob)
+        detections = net.forward()
+        boxes = data[i][1]
+        num_faces = len(boxes)
+        count = 0
+        result = []
+
+        # loop over the detections
+        for j in range(0, detections.shape[2]):
+
+            # extract the confidence (i.e., probability) associated with the detection
+            confidence = detections[0, 0, j, 2]
+
+            # filter out weak detections by ensuring the confidence is greater than the minimum confidence
+            if confidence > 0.3:
+                count += 1  # keep track of found faces
+
+                # compute the (x, y)-coordinates of the bounding box for the object
+                box = detections[0, 0, j, 3:7] * np.array([w, h, w, h])
+                (startX, startY, endX, endY) = box.astype("int")
+
+                mink = min_dist(startX, startY, boxes)
+
+                known = (
+                boxes[mink][0], boxes[mink][1], boxes[mink][0] + boxes[mink][2], boxes[mink][1] + boxes[mink][3])
+                found = (startX, startY, endX, endY)
+
+                result.append(get_iou(known, found))
+
+        # for each image, get: name, avg, actual number of faces, count
+        out = (data[i][0], result, num_faces, count)
+        total.append(out)
+
+    return total
