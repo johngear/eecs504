@@ -27,12 +27,12 @@ def custom_cnn(data, saved_model_path):
         image = cv2.imread(data[i][0], cv2.IMREAD_COLOR)
         im = np.array(image).astype(np.float32)
         
-        print(im.shape)
+        #print(im.shape)
 
         # Run the NN 
         boxes, scores = sess.run([boxes_tensor,scores_tensor], feed_dict={inp: np.expand_dims(im, axis=0)})
         
-        print(scores.shape)
+        #print(scores.shape)
         _,x = scores.shape
         ## need to reshape the data so it is consistent with the other methods
         scores = np.reshape(scores, (1,x,1))
