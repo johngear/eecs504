@@ -1,21 +1,15 @@
-import numpy as np
-import pickle
-from viola_jones import ViolaJones
-from cascade import CascadeClassifier
-import time
-import cv2
-
 def custom_cascade(data):
-    clf = CascadeClassifier.load('cascade.pkl')
+    clf = CascadeClassifier.load('cascade')
     fbb = []
     faces = []
     for i in range(0,len(data)):
-        image = cv2.imread(data[i][0], cv2.IMREAD_GRAYSCALE)
-        M,N = np.shape(image)
-        for i1 in range(M - 19):
-            for i2 in range(N - 19):
-                if clf.classify(image[i1:i1+19,i2:i2+19]):
-                    faces.append([i1,i2,i1+19,i2+19])
+        image = (cv2.imread(data[i][0], cv2.IMREAD_GRAYSCALE))
+        if image:
+            M,N = np.shape(image)
+            for i1 in range(M - 19):
+                for i2 in range(N - 19):
+                    if clf.classify(image[i1:i1+19,i2:i2+19]):
+                        faces.append([i1,i2,i1+19,i2+19])
 
         
         if len(faces) ==0 :
