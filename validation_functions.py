@@ -123,6 +123,10 @@ def get_iou(bb1, bb2):
     # area and dividing it by the sum of prediction + ground-truth
     # areas - the interesection area
     iou = intersection_area / float(bb1_area + bb2_area - intersection_area)
+    
+#     if iou >= 0.35:
+#         print("iou > .35")
+#         iou = 1
     assert iou >= 0.0
     assert iou <= 1.0
     return iou
