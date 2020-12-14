@@ -12,7 +12,8 @@ def strict_cascade(data):
 
         faces = face_cascade.detectMultiScale(image, 1.1, 4) 
         eyes = eye_cascade.detectMultiScale(image, 1.1, 4) 
-
+        
+        
         if len(faces) ==0 :
             faces_mod = np.zeros((1,8))
             faces_mod = np.reshape(faces_mod, (1, 1, faces_mod.shape[0], faces_mod.shape[1]))
@@ -25,10 +26,15 @@ def strict_cascade(data):
                         flag = 1
                 if flag == 1:
                     nfaces.append(face)
-            faces_mod = np.zeros((nfaces.shape[0], 8))
-            faces_mod[:, 2:3] = np.ones((nfaces.shape[0], 1))
-            faces_mod[:, 3:7] = nfaces
-            faces_mod = np.reshape(faces_mod, (1, 1, faces_mod.shape[0], faces_mod.shape[1]))
+            if len(nfaces) == 0:
+                faces_mod = np.zeros((1,8))
+                faces_mod = np.reshape(faces_mod, (1, 1, faces_mod.shape[0], faces_mod.shape[1]))
+            else:
+                nfaces = np.ndarray(nfaces)
+                faces_mod = np.zeros((nfaces.shape[0], 8))
+                faces_mod[:, 2:3] = np.ones((nfaces.shape[0], 1))
+                faces_mod[:, 3:7] = nfaces
+                faces_mod = np.reshape(faces_mod, (1, 1, faces_mod.shape[0], faces_mod.shape[1]))
         
         fbb.append(faces_mod)
 
